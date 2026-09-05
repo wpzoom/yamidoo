@@ -1,0 +1,39 @@
+name: Attach plugin zip to release
+# Builds yamidoo.zip from the tagged source (honouring .distignore) and attaches
+# it to the GitHub release, so this URL always serves the latest version:
+#   https://github.com/wpzoom/yamidoo/releases/latest/download/yamidoo.zip
+# The app's "Get the plugin" button points there until WordPress.org approves
+# the plugin; deploy.yml (SVN) takes over after that.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build yamidoo.zip from .distignore
+        run: |
+          mkdir -p /tmp/dist
+          rsync -a --exclude-from=.distignore ./ /tmp/dist/yamidoo/
+          cd /tmp/dist && zip -qr "$GITHUB_WORKSPACE/yamidoo.zip" yamidoo
+          unzip -l "$GITHUB_WORKSPACE/yamidoo.zip"
+
+      - name: Attach to the release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" yamidoo.zip --clobber
+
+      - name: Keep as a workflow artifact (manual runs)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: yamidoo.zip
+          path: yamidoo.zip
