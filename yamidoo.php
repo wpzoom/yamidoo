@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Yamidoo
  * Plugin URI:        https://yamidoo.ai/
- * Description:        Connect your website to Yamidoo and add the AI support chat widget. Answers visitors from your own content and hands off to a human when needed. Customize the widget in your Yamidoo dashboard.
+ * Description:       Connect your website to Yamidoo and add the AI support chat widget. Answers visitors from your own content and hands off to a human when needed. Customize the widget in your Yamidoo dashboard.
  * Version:           1.0.0
  * Requires at least: 6.4
  * Requires PHP:      7.4
