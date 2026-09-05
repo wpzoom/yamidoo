@@ -303,8 +303,6 @@ class Yamidoo_Settings {
 		<div class="wrap yamidoo-wrap">
 			<h1><?php esc_html_e( 'Yamidoo', 'yamidoo' ); ?></h1>
 
-			<?php settings_errors(); ?>
-
 			<form method="post" action="options.php">
 				<?php
 				settings_fields( self::GROUP );
