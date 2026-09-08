@@ -1,4 +1,4 @@
-# Yamidoo
+# Yamidoo – AI Support Chat
 
 Connect your WordPress site to [Yamidoo](https://yamidoo.ai/) and add the AI support chat widget in seconds. The widget answers visitors from your own content and hands off to a human on your team when needed.
 
@@ -26,12 +26,12 @@ Yamidoo is a hosted service — this plugin is a lightweight connector. It **ins
 
 1. Copy the plugin folder to `wp-content/plugins/yamidoo/` and activate **Yamidoo** in **Plugins**.
 2. In your [Yamidoo dashboard](https://app.yamidoo.ai/), open your site and copy its **Site ID** from **Integrations → WordPress**.
-3. In WordPress, go to the **Yamidoo** menu and paste the Site ID.
+3. In WordPress, go to **Settings â Yamidoo** and paste the Site ID.
 4. Make sure **Show the Yamidoo chat widget** is enabled, then **Save Changes**. The widget appears on your site immediately.
 
 ## Settings
 
-Found under the top-level **Yamidoo** admin menu. All settings are stored in a single option, `yamidoo_settings`.
+Found under **Settings â Yamidoo**. All settings are stored in a single option, `yamidoo_settings`.
 
 | Setting | Key | Default | Description |
 | --- | --- | --- | --- |
@@ -43,4 +43,4 @@ Widget appearance and behavior are **not** configured here — use the **Customi
 
 ## License
 
-GPL-2.0-or-later. See [`LICENSE`](https://www.gnu.org/licenses/gpl-2.0.html).
+GPL-2.0-or-later. See <https://www.gnu.org/licenses/gpl-2.0.html>.

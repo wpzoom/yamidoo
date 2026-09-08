@@ -1,5 +1,5 @@
-=== Yamidoo ===
-Contributors: yamidoo
+=== Yamidoo – AI Support Chat ===
+Contributors: yamidoo, wpzoom
 Tags: chat, live chat, support, ai chatbot, customer support
 Requires at least: 6.4
 Tested up to: 7.1
