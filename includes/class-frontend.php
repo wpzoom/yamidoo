@@ -141,6 +141,12 @@ class Yamidoo_Frontend {
 				'userId'   => $uid,
 				'username' => $user->user_login,
 			);
+			// Proof this identity came from WordPress, not the visitor's console —
+			// only then may the AI answer account questions for this email.
+			$signature = yamidoo_identity_signature( $user->user_email );
+			if ( '' !== $signature ) {
+				$data['signature'] = $signature;
+			}
 
 			// Reset identity when the WordPress user changes (User Switching safe).
 			$js .= 'try{var u=' . wp_json_encode( $uid, $flags ) . ";if(localStorage.getItem('yamidoo_wp_uid')!==u){window.yamidoo('logout');localStorage.setItem('yamidoo_wp_uid',u);}}catch(e){}";

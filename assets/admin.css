@@ -71,25 +71,7 @@
 	color: #646970;
 }
 
-.yamidoo-soon-badge {
-	flex: none;
-	display: inline-block;
-	padding: 1px 9px;
-	border-radius: 999px;
-	background: #e8e8ea;
-	color: #646970;
-	font-size: 11px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: .02em;
-	line-height: 1.9;
-}
-
-.yamidoo-soon-field {
-	color: #646970;
-	cursor: not-allowed;
-}
-
-.yamidoo-soon-field input {
-	cursor: not-allowed;
+.yamidoo-endpoint {
+	user-select: all;
+	word-break: break-all;
 }

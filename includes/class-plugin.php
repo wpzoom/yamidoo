@@ -10,7 +10,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class Yamidoo_Plugin
  *
- * Wires up the admin settings and the front-end widget output.
+ * Wires up the admin settings, the front-end widget output and the
+ * customer data endpoint.
  */
 class Yamidoo_Plugin {
 
@@ -36,6 +37,13 @@ class Yamidoo_Plugin {
 	public $frontend;
 
 	/**
+	 * Customer data connector (REST endpoint for Yamidoo).
+	 *
+	 * @var Yamidoo_Customer
+	 */
+	public $customer;
+
+	/**
 	 * Get the singleton instance.
 	 *
 	 * @return Yamidoo_Plugin
@@ -54,6 +62,7 @@ class Yamidoo_Plugin {
 	private function init() {
 		$this->settings = new Yamidoo_Settings();
 		$this->frontend = new Yamidoo_Frontend();
+		$this->customer = new Yamidoo_Customer();
 
 		add_filter(
 			'plugin_action_links_' . plugin_basename( YAMIDOO_FILE ),
