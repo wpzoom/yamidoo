@@ -3,7 +3,7 @@
  * Plugin Name:       Yamidoo – AI Support Chat
  * Plugin URI:        https://yamidoo.ai/docs/getting-started/installation/
  * Description:       Connect your website to Yamidoo and add the AI support chat widget. Answers visitors from your own content, knows your Easy Digital Downloads and WooCommerce customers, and hands off to a human when needed.
- * Version:           1.1.0
+ * Version:           1.1.1
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            Yamidoo
@@ -19,7 +19,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'YAMIDOO_VERSION', '1.1.0' );
+define( 'YAMIDOO_VERSION', '1.1.1' );
 define( 'YAMIDOO_FILE', __FILE__ );
 define( 'YAMIDOO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'YAMIDOO_URL', plugin_dir_url( __FILE__ ) );

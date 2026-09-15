@@ -75,3 +75,26 @@
 	user-select: all;
 	word-break: break-all;
 }
+
+.yamidoo-connect-card {
+	margin-top: 12px;
+}
+
+.yamidoo-connect-card .button-hero {
+	margin: 4px 0 10px;
+}
+
+.yamidoo-connect-actions {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin: 0;
+}
+
+.yamidoo-inline-form {
+	display: inline;
+}
+
+.yamidoo-disconnect {
+	color: #b32d2e;
+}

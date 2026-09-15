@@ -23,12 +23,30 @@ class Yamidoo_Settings {
 	const PAGE = 'yamidoo';
 
 	/**
+	 * Transient holding the one-time state nonce of an in-flight connect.
+	 */
+	const STATE_TRANSIENT = 'yamidoo_connect_state';
+
+	/**
 	 * Hook everything up.
 	 */
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_init', array( $this, 'handle_connect_return' ) );
+		add_action( 'admin_post_yamidoo_connect', array( $this, 'handle_connect_start' ) );
+		add_action( 'admin_post_yamidoo_disconnect', array( $this, 'handle_disconnect' ) );
+		add_action( 'admin_notices', array( $this, 'connect_notices' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+	}
+
+	/**
+	 * URL of our settings screen (also the connect return address).
+	 *
+	 * @return string
+	 */
+	public static function settings_url() {
+		return admin_url( 'options-general.php?page=' . self::PAGE );
 	}
 
 	/**
@@ -44,6 +62,9 @@ class Yamidoo_Settings {
 			// Customer data connector (Easy Digital Downloads / WooCommerce).
 			'share_customer_data' => 0,
 			'lookup_secret'       => '',
+			// Set by the one-click connect; empty when the Site ID was pasted by hand.
+			'token'               => '',
+			'connected_at'        => 0,
 		);
 	}
 
@@ -178,6 +199,17 @@ class Yamidoo_Settings {
 		}
 
 		$out['site_id']             = $site_id;
+		// register_setting() runs this on every update_option(), including the
+		// connect handshake, which passes the token explicitly. The settings form
+		// never posts one: then the token belongs to the site it was minted for.
+		if ( isset( $input['token'] ) ) {
+			$token               = trim( sanitize_text_field( $input['token'] ) );
+			$out['token']        = ( 0 === strpos( $token, 'ycw_' ) ) ? $token : '';
+			$out['connected_at'] = '' !== $out['token'] && isset( $input['connected_at'] ) ? (int) $input['connected_at'] : 0;
+		} else {
+			$out['token']        = ( $site_id === $current['site_id'] ) ? $current['token'] : '';
+			$out['connected_at'] = ( $site_id === $current['site_id'] ) ? (int) $current['connected_at'] : 0;
+		}
 		$out['enabled']             = empty( $input['enabled'] ) ? 0 : 1;
 		$out['identify_logged_in']  = empty( $input['identify_logged_in'] ) ? 0 : 1;
 		$out['share_customer_data'] = empty( $input['share_customer_data'] ) ? 0 : 1;
@@ -194,6 +226,176 @@ class Yamidoo_Settings {
 		$out['lookup_secret'] = $secret;
 
 		return $out;
+	}
+
+	// -------------------------------------------------------------------------
+	// One-click connect
+	// -------------------------------------------------------------------------
+
+	/**
+	 * "Connect to Yamidoo" → app.yamidoo.ai/connect/wordpress with a one-time
+	 * state nonce. The app signs the owner in (or up — email and name are
+	 * prefilled from their WordPress profile), creates the project and sends
+	 * them back here with the Site ID, a connect token and the customer-lookup
+	 * secret. Nothing to paste.
+	 */
+	public function handle_connect_start() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Unauthorized', 'yamidoo' ), 403 );
+		}
+		check_admin_referer( 'yamidoo_connect' );
+
+		$state = wp_generate_password( 24, false, false );
+		set_transient( self::STATE_TRANSIENT, $state, 15 * MINUTE_IN_SECONDS );
+
+		$user = wp_get_current_user();
+		$name = trim( $user->first_name . ' ' . $user->last_name );
+		if ( '' === $name ) {
+			$name = html_entity_decode( $user->display_name, ENT_QUOTES, 'UTF-8' );
+		}
+		$url = add_query_arg(
+			array(
+				'site'   => rawurlencode( home_url( '/' ) ),
+				'return' => rawurlencode( self::settings_url() ),
+				'state'  => $state,
+				'plugin' => 'yamidoo',
+				'email'  => rawurlencode( $user->user_email ),
+				'name'   => rawurlencode( $name ),
+			),
+			yamidoo_app_url() . '/connect/wordpress'
+		);
+		wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- external app by design.
+		exit;
+	}
+
+	/**
+	 * Back from the app with ?yamidoo_site_id=…&yamidoo_token=…&yamidoo_state=…[&yamidoo_lookup_secret=…].
+	 */
+	public function handle_connect_return() {
+		if ( empty( $_GET['yamidoo_site_id'] ) || empty( $_GET['yamidoo_token'] ) || empty( $_GET['yamidoo_state'] ) ) {
+			return;
+		}
+		// The app returns to the plugin that started the handshake; WPZOOM Connect
+		// listens for the same parameters on its own screen.
+		if ( empty( $_GET['page'] ) || self::PAGE !== $_GET['page'] ) {
+			return;
+		}
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		$expected = get_transient( self::STATE_TRANSIENT );
+		$state    = sanitize_text_field( wp_unslash( $_GET['yamidoo_state'] ) );
+		$site_id  = strtolower( sanitize_text_field( wp_unslash( $_GET['yamidoo_site_id'] ) ) );
+		$token    = sanitize_text_field( wp_unslash( $_GET['yamidoo_token'] ) );
+
+		if ( ! $expected || ! hash_equals( (string) $expected, $state ) || ! self::is_uuid( $site_id ) || 0 !== strpos( $token, 'ycw_' ) ) {
+			wp_safe_redirect( add_query_arg( 'yamidoo', 'connect_failed', self::settings_url() ) );
+			exit;
+		}
+		delete_transient( self::STATE_TRANSIENT );
+
+		$options                 = self::get();
+		$options['site_id']      = $site_id;
+		$options['token']        = $token;
+		$options['connected_at'] = time();
+		if ( ! empty( $_GET['yamidoo_lookup_secret'] ) ) {
+			$secret = sanitize_text_field( wp_unslash( $_GET['yamidoo_lookup_secret'] ) );
+			if ( 0 === strpos( $secret, 'ycl_' ) ) {
+				$options['lookup_secret'] = $secret;
+				// Customer data is on by default when there is a store to read from.
+				if ( Yamidoo_Customer::detected_stores() ) {
+					$options['share_customer_data'] = 1;
+				}
+			}
+		}
+		update_option( YAMIDOO_OPTION, $options );
+
+		wp_safe_redirect( add_query_arg( 'yamidoo', 'connected', self::settings_url() ) );
+		exit;
+	}
+
+	/**
+	 * Forget the connection (the project stays in the Yamidoo dashboard).
+	 */
+	public function handle_disconnect() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Unauthorized', 'yamidoo' ), 403 );
+		}
+		check_admin_referer( 'yamidoo_disconnect' );
+		$options                  = self::get();
+		$options['site_id']       = '';
+		$options['token']         = '';
+		$options['connected_at']  = 0;
+		$options['lookup_secret'] = '';
+		update_option( YAMIDOO_OPTION, $options );
+		wp_safe_redirect( add_query_arg( 'yamidoo', 'disconnected', self::settings_url() ) );
+		exit;
+	}
+
+	/**
+	 * Result notices after a connect / disconnect round trip.
+	 */
+	public function connect_notices() {
+		if ( empty( $_GET['page'] ) || self::PAGE !== $_GET['page'] || empty( $_GET['yamidoo'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
+			return;
+		}
+		$result = sanitize_key( wp_unslash( $_GET['yamidoo'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$map    = array(
+			'connected'      => array( 'success', __( 'Connected. Your site is linked to Yamidoo and its pages are being indexed.', 'yamidoo' ) ),
+			'connect_failed' => array( 'error', __( 'The connection could not be verified. Please click Connect to Yamidoo again.', 'yamidoo' ) ),
+			'disconnected'   => array( 'info', __( 'Disconnected. The project is still in your Yamidoo dashboard; connect again any time.', 'yamidoo' ) ),
+		);
+		if ( ! isset( $map[ $result ] ) ) {
+			return;
+		}
+		printf(
+			'<div class="notice notice-%1$s is-dismissible"><p>%2$s</p></div>',
+			esc_attr( $map[ $result ][0] ),
+			esc_html( $map[ $result ][1] )
+		);
+	}
+
+	/**
+	 * The connect card above the settings form.
+	 */
+	private function render_connect_card() {
+		$options   = self::get();
+		$connected = '' !== $options['token'] && self::is_uuid( $options['site_id'] );
+		?>
+		<div class="yamidoo-card yamidoo-connect-card">
+			<?php if ( $connected ) : ?>
+				<h2><?php esc_html_e( 'Connected to Yamidoo', 'yamidoo' ); ?></h2>
+				<p>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %s: date */
+							__( 'This site has been linked to your Yamidoo workspace since %s. Widget, customer data and indexing are managed from the dashboard.', 'yamidoo' ),
+							date_i18n( get_option( 'date_format' ), (int) $options['connected_at'] )
+						)
+					);
+					?>
+				</p>
+				<p class="yamidoo-connect-actions">
+					<a class="button button-secondary" href="<?php echo esc_url( yamidoo_app_url() . '/dashboard/sites' ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Open the Yamidoo dashboard', 'yamidoo' ); ?></a>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="yamidoo-inline-form">
+						<?php wp_nonce_field( 'yamidoo_disconnect' ); ?>
+						<input type="hidden" name="action" value="yamidoo_disconnect" />
+						<button type="submit" class="button-link yamidoo-disconnect"><?php esc_html_e( 'Disconnect', 'yamidoo' ); ?></button>
+					</form>
+				</p>
+			<?php else : ?>
+				<h2><?php esc_html_e( 'Connect to Yamidoo', 'yamidoo' ); ?></h2>
+				<p><?php esc_html_e( 'One click: sign in or create a free account, and this site is linked and indexed — Site ID, customer data and secret all filled in for you.', 'yamidoo' ); ?></p>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<?php wp_nonce_field( 'yamidoo_connect' ); ?>
+					<input type="hidden" name="action" value="yamidoo_connect" />
+					<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'Connect to Yamidoo', 'yamidoo' ); ?></button>
+				</form>
+				<p class="description"><?php esc_html_e( 'Prefer to do it by hand? Paste your Site ID below instead.', 'yamidoo' ); ?></p>
+			<?php endif; ?>
+		</div>
+		<?php
 	}
 
 	/**
@@ -370,6 +572,8 @@ class Yamidoo_Settings {
 		?>
 		<div class="wrap yamidoo-wrap">
 			<h1><?php esc_html_e( 'Yamidoo', 'yamidoo' ); ?></h1>
+
+			<?php $this->render_connect_card(); ?>
 
 			<form method="post" action="options.php">
 				<?php

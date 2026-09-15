@@ -4,11 +4,11 @@ Tags: chat, live chat, support, ai chatbot, woocommerce
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Connect your website to Yamidoo and add an AI support chat widget that answers visitors from your own content and hands off to a human when needed.
+Connect your website to Yamidoo in one click and add an AI support chat widget that answers visitors from your own content and hands off to a human when needed.
 
 == Description ==
 
@@ -18,7 +18,8 @@ The widget answers your visitors instantly from your content and can hand off to
 
 **What this plugin does**
 
-* Adds the Yamidoo chat widget to the front end of your site with a single Site ID.
+* **One-click connect.** Click *Connect to Yamidoo*, sign in or create a free account, and you are sent back with the site linked and indexing started. Prefer to do it by hand? Paste a Site ID instead.
+* Adds the Yamidoo chat widget to the front end of your site.
 * Optionally identifies logged-in WordPress users to Yamidoo (name, email, username, user ID) so your support team knows who they are talking to.
 * **Customer data for Easy Digital Downloads and WooCommerce.** Your team sees a customer's orders, licenses and subscriptions next to their conversation in your own Yamidoo inbox, and your AI assistant can answer logged-in customers' questions about their own account ("when does my license expire?"). Nothing is uploaded or shared with anyone else: your workspace fetches one customer's record from your site when it is needed, over a request signed with your secret, and does not store it. Developers can add data from any plugin with the `yamidoo_customer_sections` filter.
 * Plays nicely with caching and optimization plugins — WP Rocket, LiteSpeed Cache, Autoptimize, Perfmatters, SiteGround Optimizer and Cloudflare Rocket Loader are all told to leave the widget alone.
@@ -35,6 +36,7 @@ This plugin connects to Yamidoo, a hosted third-party service operated by Yamido
   * If "identify logged-in users" is enabled and a user is logged in: that user's WordPress display name, email address, username and user ID.
   * If customer lookup is enabled: when your team opens a conversation, or the AI answers a logged-in customer, your Yamidoo workspace requests that one email's record from this site (`/wp-json/yamidoo/v1/customer`) — Easy Digital Downloads customer, licenses, orders and subscriptions, or WooCommerce orders and subscriptions. Every request is signed with the secret you paste into the settings; the record is shown to your team and used for that answer, then discarded.
   * When loading the widget: your Site ID (a public identifier used to select your widget configuration).
+  * When you click *Connect to Yamidoo*: your site's address, the address of the settings screen to return to, and your WordPress email and name to prefill the sign-in form. Nothing is sent until you click the button.
 * **Service links:** [Website](https://yamidoo.ai/) · [Terms of Service](https://yamidoo.ai/terms) · [Privacy Policy](https://yamidoo.ai/privacy)
 
 By installing this plugin and adding your Site ID, you agree to Yamidoo's Terms of Service and Privacy Policy.
@@ -42,10 +44,13 @@ By installing this plugin and adding your Site ID, you agree to Yamidoo's Terms 
 == Installation ==
 
 1. Install and activate the plugin.
-2. In your [Yamidoo dashboard](https://yamidoo.ai/), open your site and copy its **Site ID** from **Integrations → WordPress**.
-3. In WordPress, go to **Settings → Yamidoo** and paste the Site ID.
-4. Make sure **Show the Yamidoo chat widget** is enabled, then save. The widget appears on your site immediately.
-5. Optional, for Easy Digital Downloads or WooCommerce stores: in the dashboard open **Integrations → Customer data**, paste the Lookup URL shown in **Settings → Yamidoo** (`https://your-site.com/wp-json/yamidoo/v1/customer`), click **Generate secret**, paste the secret into WordPress and tick **Show customer data in my Yamidoo inbox**.
+2. Go to **Settings → Yamidoo** and click **Connect to Yamidoo**. Sign in or create a free account and confirm — you are sent straight back, and the widget appears on your site. On Easy Digital Downloads and WooCommerce stores, customer data is switched on for you too.
+
+Prefer to do it by hand?
+
+1. In your [Yamidoo dashboard](https://yamidoo.ai/), open your site and copy its **Site ID** from **Integrations → WordPress**.
+2. In **Settings → Yamidoo**, paste the Site ID and save.
+3. Optional, for Easy Digital Downloads or WooCommerce stores: in the dashboard open **Integrations → Customer data**, paste the Lookup URL shown in **Settings → Yamidoo** (`https://your-site.com/wp-json/yamidoo/v1/customer`), click **Generate secret**, paste the secret into WordPress and tick **Show customer data in my Yamidoo inbox**.
 
 == Frequently Asked Questions ==
 
@@ -82,6 +87,9 @@ Yes. Hook the `yamidoo_customer_sections` filter and return extra sections (a ti
 1. The Yamidoo settings screen in the WordPress admin: paste your Site ID to connect, toggle the chat widget on the front end, and choose whether to identify logged-in users.
 
 == Changelog ==
+
+= 1.1.1 =
+* NEW: One-click connect — sign in or create an account from Settings → Yamidoo and everything is filled in for you
 
 = 1.1.0 =
 * NEW: Customer data for Easy Digital Downloads and WooCommerce — orders, licenses and subscriptions shown next to the conversation, and account questions answered for logged-in customers
