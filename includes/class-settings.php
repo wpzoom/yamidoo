@@ -28,6 +28,11 @@ class Yamidoo_Settings {
 	const STATE_TRANSIENT = 'yamidoo_connect_state';
 
 	/**
+	 * Settings encrypted at rest (see Yamidoo_Secrets).
+	 */
+	const SECRET_KEYS = array( 'token', 'lookup_secret' );
+
+	/**
 	 * Hook everything up.
 	 */
 	public function __construct() {
@@ -78,7 +83,11 @@ class Yamidoo_Settings {
 		if ( ! is_array( $option ) ) {
 			$option = array();
 		}
-		return wp_parse_args( $option, self::defaults() );
+		$option = wp_parse_args( $option, self::defaults() );
+		foreach ( self::SECRET_KEYS as $key ) {
+			$option[ $key ] = Yamidoo_Secrets::decrypt( $option[ $key ] );
+		}
+		return $option;
 	}
 
 	/**
@@ -224,6 +233,10 @@ class Yamidoo_Settings {
 			$secret = $current['lookup_secret'];
 		}
 		$out['lookup_secret'] = $secret;
+
+		foreach ( self::SECRET_KEYS as $key ) {
+			$out[ $key ] = Yamidoo_Secrets::encrypt( $out[ $key ] );
+		}
 
 		return $out;
 	}

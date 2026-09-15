@@ -95,6 +95,8 @@ Yes. Hook the `yamidoo_customer_sections` filter and return extra sections (a ti
 * NEW: Customer data for Easy Digital Downloads and WooCommerce — orders, licenses and subscriptions shown next to the conversation, and account questions answered for logged-in customers
 * NEW: `yamidoo_customer_sections` filter for other plugins
 * Logged-in identities are signed so the AI only shares account data with the real account holder
+* The connect token and lookup secret are encrypted in the database, keyed to your site's auth salt
+* Suggested privacy policy text under Settings → Privacy → Policy Guide
 
 = 1.0.0 =
 * Initial release

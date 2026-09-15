@@ -39,11 +39,13 @@ Found under **Settings → Yamidoo**. All settings are stored in a single option
 | Show the widget | `enabled` | `on` | Output the widget on the front end. |
 | Identify logged-in users | `identify_logged_in` | `on` | Send the logged-in user's name/email/username/ID to Yamidoo via the widget's JS API. |
 | Customer lookup | `share_customer_data` | `off` | Serve `POST /wp-json/yamidoo/v1/customer` (EDD / WooCommerce card) to Yamidoo, and sign logged-in identities. |
-| Connect token | `token` | `''` | Set by the one-click connect; cleared when the Site ID is changed by hand or on Disconnect. |
+| Connect token | `token` | `''` | Set by the one-click connect; cleared when the Site ID is changed by hand or on Disconnect. Encrypted at rest. |
 | Connected at | `connected_at` | `0` | Unix time of the last successful connect. |
-| Lookup secret | `lookup_secret` | `''` | Generated in the dashboard under **Integrations → Customer data**; signs every lookup (`sha256=HMAC(secret, "ts.email")`) and the identify signature (`HMAC(secret, lowercase email)`). |
+| Lookup secret | `lookup_secret` | `''` | Generated in the dashboard under **Integrations → Customer data**; signs every lookup (`sha256=HMAC(secret, "ts.email")`) and the identify signature (`HMAC(secret, lowercase email)`). Encrypted at rest. |
 
 Widget appearance and behavior are **not** configured here — use the **Customize your widget → Open the Yamidoo dashboard** link on the settings screen.
+
+Secrets are encrypted with libsodium using a key derived from `wp_salt( 'auth' )`. If you rotate the auth salt, reconnect (or paste the secret again). A suggested paragraph for the site's privacy policy is added under **Settings → Privacy → Policy Guide**.
 
 ## Printing the widget yourself
 

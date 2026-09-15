@@ -63,6 +63,7 @@ function yamidoo_identity_signature( $email ) {
 	return hash_hmac( 'sha256', strtolower( trim( (string) $email ) ), (string) $options['lookup_secret'] );
 }
 
+require_once YAMIDOO_DIR . 'includes/class-secrets.php';
 require_once YAMIDOO_DIR . 'includes/class-settings.php';
 require_once YAMIDOO_DIR . 'includes/class-frontend.php';
 require_once YAMIDOO_DIR . 'includes/class-customer.php';
