@@ -427,7 +427,7 @@ class Yamidoo_Settings {
 			echo '<p>' . esc_html(
 				sprintf(
 					/* translators: %s: store names, e.g. "Easy Digital Downloads" */
-					__( 'Let your own Yamidoo inbox show what %s knows about a visitor — orders, licenses, subscriptions — next to their conversation, and let your AI assistant answer account questions for logged-in customers. Nothing is uploaded: your workspace fetches one customer’s record from this site when a conversation is opened, and it is not stored.', 'yamidoo' ),
+					__( 'Let your own Yamidoo inbox show what %s knows about a visitor — orders, licenses, subscriptions — next to their conversation. Nothing is uploaded: your workspace fetches one customer’s record from this site when a conversation is opened, and it is not stored. The AI assistant does not see it unless you switch that on in the dashboard.', 'yamidoo' ),
 					implode( ' & ', $stores )
 				)
 			) . '</p>';
@@ -452,7 +452,7 @@ class Yamidoo_Settings {
 			checked( 1, $options['share_customer_data'], false ),
 			esc_html( $label )
 		);
-		echo '<p class="description">' . esc_html__( 'Only your workspace can request it, and only with the secret below. Your team sees the record next to the conversation; the AI uses it only for visitors whose WordPress login this plugin has verified.', 'yamidoo' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Only your workspace can request it, and only with the secret below. Your team sees the record next to the conversation. The AI is kept out by default; you can let it answer logged-in customers’ own account questions from the dashboard, under Integrations → Customer data.', 'yamidoo' ) . '</p>';
 	}
 
 	/**
