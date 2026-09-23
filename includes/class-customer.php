@@ -33,7 +33,13 @@ class Yamidoo_Customer {
 	/**
 	 * Max rows per section.
 	 */
-	const MAX_ITEMS = 8;
+	const MAX_ITEMS = 15;
+
+	/**
+	 * Licenses are one line each and the one a customer asks about is often
+	 * not the newest, so they get more room. Live ones are listed first.
+	 */
+	const MAX_LICENSES = 25;
 
 	/**
 	 * Max clock skew accepted on a signed request, in seconds.
@@ -303,8 +309,24 @@ class Yamidoo_Customer {
 		// Licenses (Software Licensing).
 		if ( function_exists( 'edd_software_licensing' ) ) {
 			$licenses = edd_software_licensing()->licenses_db->get_licenses(
-				array( 'customer_id' => (int) $customer->id, 'number' => self::MAX_ITEMS, 'orderby' => 'date_created', 'order' => 'DESC' )
+				array( 'customer_id' => (int) $customer->id, 'number' => 200, 'orderby' => 'date_created', 'order' => 'DESC' )
 			);
+			// Active and inactive first (the ones that still matter), then newest.
+			$licenses = (array) $licenses;
+			usort(
+				$licenses,
+				function ( $a, $b ) {
+					$rank = array( 'active' => 0, 'inactive' => 1 );
+					$ra   = isset( $rank[ $a->status ] ) ? $rank[ $a->status ] : 2;
+					$rb   = isset( $rank[ $b->status ] ) ? $rank[ $b->status ] : 2;
+					if ( $ra !== $rb ) {
+						return $ra - $rb;
+					}
+					return strcmp( (string) $b->date_created, (string) $a->date_created );
+				}
+			);
+			$total_licenses = count( $licenses );
+			$licenses       = array_slice( $licenses, 0, self::MAX_LICENSES );
 			$items = array();
 			foreach ( (array) $licenses as $lic ) {
 				$name = '';
@@ -342,7 +364,7 @@ class Yamidoo_Customer {
 					)
 				);
 			}
-			$sections[] = array( 'title' => __( 'Licenses', 'yamidoo' ), 'items' => $items );
+			$sections[] = array( 'title' => __( 'Licenses', 'yamidoo' ), 'items' => $items, 'total' => $total_licenses );
 		}
 
 		// Orders.
@@ -350,6 +372,7 @@ class Yamidoo_Customer {
 			$orders = edd_get_orders(
 				array( 'customer_id' => (int) $customer->id, 'number' => self::MAX_ITEMS, 'orderby' => 'date_created', 'order' => 'DESC', 'type' => 'sale' )
 			);
+			$total_orders = function_exists( 'edd_count_orders' ) ? (int) edd_count_orders( array( 'customer_id' => (int) $customer->id, 'type' => 'sale' ) ) : count( (array) $orders );
 			$items = array();
 			foreach ( (array) $orders as $order ) {
 				$products = array();
@@ -373,7 +396,7 @@ class Yamidoo_Customer {
 					)
 				);
 			}
-			$sections[] = array( 'title' => __( 'Orders', 'yamidoo' ), 'items' => $items, 'collapsed' => count( $items ) > 3 );
+			$sections[] = array( 'title' => __( 'Orders', 'yamidoo' ), 'items' => $items, 'collapsed' => count( $items ) > 3, 'total' => $total_orders );
 		}
 
 		// Subscriptions (Recurring).
@@ -393,7 +416,8 @@ class Yamidoo_Customer {
 					return strcmp( (string) $b->created, (string) $a->created );
 				}
 			);
-			$subs  = array_slice( $subs, 0, self::MAX_ITEMS );
+			$total_subs = count( $subs );
+			$subs       = array_slice( $subs, 0, self::MAX_ITEMS );
 			$items = array();
 			foreach ( $subs as $sub ) {
 				$name = ! empty( $sub->product_id ) ? get_the_title( (int) $sub->product_id ) : __( 'Subscription', 'yamidoo' );
@@ -421,6 +445,7 @@ class Yamidoo_Customer {
 			}
 			$sections[] = array(
 				'title'     => __( 'Subscriptions', 'yamidoo' ),
+				'total'     => $total_subs,
 				'items'     => $items,
 				'collapsed' => count( $items ) > 3,
 				'url'       => admin_url( 'edit.php?post_type=download&page=edd-subscriptions&s=' . rawurlencode( $email ) ),
@@ -441,7 +466,9 @@ class Yamidoo_Customer {
 	 * @return array|null
 	 */
 	private function woo_card( $email ) {
-		$orders = wc_get_orders( array( 'customer' => $email, 'limit' => self::MAX_ITEMS, 'orderby' => 'date', 'order' => 'DESC' ) );
+		$paged  = wc_get_orders( array( 'customer' => $email, 'limit' => self::MAX_ITEMS, 'orderby' => 'date', 'order' => 'DESC', 'paginate' => true ) );
+		$orders = $paged && isset( $paged->orders ) ? (array) $paged->orders : array();
+		$total_orders = $paged && isset( $paged->total ) ? (int) $paged->total : count( $orders );
 		$user   = get_user_by( 'email', $email );
 		if ( empty( $orders ) && ! $user ) {
 			return null;
@@ -470,7 +497,7 @@ class Yamidoo_Customer {
 		$meta = array();
 		if ( $orders ) {
 			/* translators: %d: number of orders */
-			$meta[] = sprintf( _n( '%d order', '%d orders', count( $orders ), 'yamidoo' ), count( $orders ) );
+			$meta[] = sprintf( _n( '%d order', '%d orders', $total_orders, 'yamidoo' ), $total_orders );
 			/* translators: %s: formatted amount */
 			$meta[] = sprintf( __( 'recent total %s', 'yamidoo' ), $this->money( wc_price( $total ) ) );
 		}
@@ -482,11 +509,13 @@ class Yamidoo_Customer {
 			'title' => __( 'Customer', 'yamidoo' ),
 			'items' => array( $this->item( $user ? $user->display_name : $email, array( 'meta' => implode( ' · ', $meta ), 'url' => $admin ) ) ),
 		);
-		$sections[] = array( 'title' => __( 'Orders', 'yamidoo' ), 'items' => $items, 'collapsed' => count( $items ) > 3 );
+		$sections[] = array( 'title' => __( 'Orders', 'yamidoo' ), 'items' => $items, 'collapsed' => count( $items ) > 3, 'total' => $total_orders );
 
 		if ( $user && function_exists( 'wcs_get_users_subscriptions' ) ) {
 			$items = array();
-			foreach ( (array) wcs_get_users_subscriptions( $user->ID ) as $sub ) {
+			$all_subs   = (array) wcs_get_users_subscriptions( $user->ID );
+			$total_subs = count( $all_subs );
+			foreach ( array_slice( $all_subs, 0, self::MAX_ITEMS ) as $sub ) {
 				$names = array();
 				foreach ( $sub->get_items() as $it ) {
 					$names[] = $it->get_name();
@@ -503,7 +532,7 @@ class Yamidoo_Customer {
 					)
 				);
 			}
-			$sections[] = array( 'title' => __( 'Subscriptions', 'yamidoo' ), 'items' => $items );
+			$sections[] = array( 'title' => __( 'Subscriptions', 'yamidoo' ), 'items' => $items, 'total' => $total_subs );
 		}
 
 		return array( 'sections' => $sections, 'url' => $admin );
