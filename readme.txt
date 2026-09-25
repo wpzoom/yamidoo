@@ -4,7 +4,7 @@ Tags: chat, live chat, support, ai chatbot, woocommerce
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,9 @@ Yes. Hook the `yamidoo_customer_sections` filter and return extra sections (a ti
 1. The Yamidoo settings screen in the WordPress admin: paste your Site ID to connect, toggle the chat widget on the front end, and choose whether to identify logged-in users.
 
 == Changelog ==
+
+= 1.1.3 =
+* Security fix
 
 = 1.1.2 =
 * IMPROVED: Customer data now lists up to 25 licenses (active ones first) and 15 orders and subscriptions, and reports the total count when there are more

@@ -3,7 +3,7 @@
  * Plugin Name:       Yamidoo – AI Support Chat
  * Plugin URI:        https://yamidoo.ai/docs/getting-started/installation/
  * Description:       Connect your website to Yamidoo and add the AI support chat widget. Answers visitors from your own content, knows your Easy Digital Downloads and WooCommerce customers, and hands off to a human when needed.
- * Version:           1.1.2
+ * Version:           1.1.3
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            Yamidoo
@@ -60,7 +60,13 @@ function yamidoo_identity_signature( $email ) {
 	if ( empty( $options['share_customer_data'] ) || '' === (string) $options['lookup_secret'] ) {
 		return '';
 	}
-	return hash_hmac( 'sha256', strtolower( trim( (string) $email ) ), (string) $options['lookup_secret'] );
+	// Domain-separated: the same secret signs Yamidoo's customer-data lookups
+	// over `<timestamp>.<email>`. Signing the bare email here overlapped with
+	// that — an account whose address was `<timestamp>.victim@example.com`
+	// got a signature valid for a lookup of victim@example.com — so the
+	// identity message carries a prefix that can never start with a digit.
+	// Verified server-side in apps/dashboard/lib/integrations/customer-lookup.ts.
+	return hash_hmac( 'sha256', 'identify:' . strtolower( trim( (string) $email ) ), (string) $options['lookup_secret'] );
 }
 
 require_once YAMIDOO_DIR . 'includes/class-secrets.php';
