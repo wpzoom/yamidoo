@@ -1,6 +1,6 @@
-=== Yamidoo – AI Support Chat ===
+=== Yamidoo – AI Chatbot & Live Chat for Customer Support ===
 Contributors: yamidoo, wpzoom
-Tags: chat, live chat, support, ai chatbot, woocommerce
+Tags: ai chatbot, chatbot, live chat, customer support, woocommerce
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -8,23 +8,34 @@ Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Connect your website to Yamidoo in one click and add an AI support chat widget that answers visitors from your own content and hands off to a human when needed.
+AI chat that answers visitors from your own site, hands off to your team when needed, and shows your store's orders and licenses next to every chat.
 
 == Description ==
 
-Yamidoo is an AI-first customer support chat. This plugin connects your WordPress site to your Yamidoo account and adds the chat widget to your site in seconds — no code required.
+**Yamidoo answers your visitors' questions from your own website, 24/7, and brings a real person in when it matters.**
 
-The widget answers your visitors instantly from your content and can hand off to a human on your team when needed. All appearance and behavior (colors, welcome message, launcher icon, suggested questions, lead capture, human handoff, and more) are configured in your **Yamidoo dashboard**, so changes go live automatically without updating anything in WordPress.
+https://www.youtube.com/watch?v=AmrVHXW-daw
 
-**What this plugin does**
+Most "AI chatbot" plugins give you a bot and leave you to figure out the rest. Yamidoo is a complete support chat: an AI assistant trained on your content, a live inbox for your team, and the customer data from your store, all in one place. It is made by the WPZOOM team and runs on wpzoom.com and on our customers' sites.
 
-* **One-click connect.** Click *Connect to Yamidoo*, sign in or create a free account, and you are sent back with the site linked and indexing started. Prefer to do it by hand? Paste a Site ID instead.
-* Adds the Yamidoo chat widget to the front end of your site.
-* Optionally identifies logged-in WordPress users to Yamidoo (name, email, username, user ID) so your support team knows who they are talking to.
-* **Customer data for Easy Digital Downloads and WooCommerce.** Your team sees a customer's orders, licenses and subscriptions next to their conversation in your own Yamidoo inbox. If you choose to, your AI assistant can also answer logged-in customers' questions about their own account ("when does my license expire?") — that is a separate switch in the dashboard, off by default. Nothing is uploaded or shared with anyone else: your workspace fetches one customer's record from your site when it is needed, over a request signed with your secret, and does not store it. Developers can add data from any plugin with the `yamidoo_customer_sections` filter.
-* Plays nicely with caching and optimization plugins — WP Rocket, LiteSpeed Cache, Autoptimize, Perfmatters, SiteGround Optimizer and Cloudflare Rocket Loader are all told to leave the widget alone.
+**What you get**
 
-**Requires a Yamidoo account.** Create one and get your Site ID at [yamidoo.ai](https://yamidoo.ai/).
+* **Answers from your content, with sources.** Yamidoo indexes your pages, posts, docs, products, uploaded files and your own Q&A, then answers from that. Every answer links the pages it used. When it doesn't know, it says so instead of guessing.
+* **Human handoff and a live inbox.** Visitors can ask for a person, and the AI hands over by itself when it can't help. Your team replies from the Yamidoo inbox, sees who is on the site right now, and hands the chat back to the AI when done. Nobody online? The visitor leaves their email and you get a notification with the whole conversation.
+* **Your store's data next to every chat.** With Easy Digital Downloads, WooCommerce or Freemius, your team sees the customer's orders, licenses and subscriptions beside the conversation. If you choose to, the AI can answer logged-in customers' own account questions ("when does my license expire?"). Off by default, and only for identities your site has signed.
+* **Content gaps.** See the questions the AI couldn't answer, grouped by topic, so you know which docs to write next. Mark them solved as you go.
+* **Analytics.** Conversations, handoff rate, response time, satisfaction split between AI and team, where chats start on your site, and the pages visitors came from.
+* **A widget that fits your site.** Your colors, launcher icon and label, welcome message, suggested questions, floating messages, contact capture, ratings, email transcripts, and 14 interface languages. Floating bubble, embedded in a page, or an iframe.
+* **One-click connect.** Install, click *Connect to Yamidoo*, and the widget is live with indexing started. Nothing to paste.
+* **Works with your stack.** Help Scout drafts, an API for your own scripts and AI assistants, and the optimization plugins people actually use (WP Rocket, LiteSpeed Cache, Autoptimize, Perfmatters, SiteGround Optimizer, Cloudflare).
+
+**Free to start.** The free plan includes 50 conversations a month on one site, with the AI, the inbox and human handoff all included. Paid plans add more conversations, pages and sites. See [yamidoo.ai/pricing](https://yamidoo.ai/pricing/).
+
+**Private by design.** Your customers' data is fetched from your site when a conversation needs it, over a signed request, and is not stored by Yamidoo. Visitors from countries you block never load the widget. Yamidoo is operated from the EU.
+
+**How it works**
+
+Yamidoo is a hosted service. This plugin connects your WordPress site to your Yamidoo account, adds the chat widget to your pages, and gives your workspace a signed endpoint for customer data. Everything about how the widget looks and behaves is configured in your Yamidoo dashboard, so changes go live without touching WordPress. You need a free Yamidoo account: create one at [yamidoo.ai](https://yamidoo.ai/) or straight from the plugin's Connect button.
 
 == External services ==
 
@@ -84,7 +95,13 @@ Yes. Hook the `yamidoo_customer_sections` filter and return extra sections (a ti
 
 == Screenshots ==
 
-1. The Yamidoo settings screen in the WordPress admin: paste your Site ID to connect, toggle the chat widget on the front end, and choose whether to identify logged-in users.
+1. The chat widget on a site: the visitor asks, Yamidoo answers from the site's content and links its sources.
+2. Human handoff: your team takes over in the inbox and hands the chat back to the AI when done.
+3. Live: who is on your site right now, which page they're on, and open chats.
+4. Customer data next to the conversation: orders, licenses and subscriptions from Easy Digital Downloads, WooCommerce or Freemius.
+5. Analytics: conversations, handoff rate, satisfaction for AI and team, and where chats start.
+6. Sources: the pages, sitemaps, files and Q&A the AI answers from.
+7. The plugin's settings screen in WordPress: connect in one click, show the widget, identify logged-in users.
 
 == Changelog ==
 
