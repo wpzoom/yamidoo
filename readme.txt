@@ -29,7 +29,7 @@ Most "AI chatbot" plugins give you a bot and leave you to figure out the rest. Y
 * **One-click connect.** Install, click *Connect to Yamidoo*, and the widget is live with indexing started. Nothing to paste.
 * **Works with your stack.** Help Scout drafts, an API for your own scripts and AI assistants, and the optimization plugins people actually use (WP Rocket, LiteSpeed Cache, Autoptimize, Perfmatters, SiteGround Optimizer, Cloudflare).
 
-**Free to start.** The free plan includes 50 conversations a month on one site, with the AI, the inbox and human handoff all included. Paid plans add more conversations, pages and sites. See [yamidoo.ai/pricing](https://yamidoo.ai/pricing/).
+**Free to start.** The free plan includes 15 conversations a month on one site, with the AI, the inbox and human handoff all included. Paid plans add more conversations, pages and sites. See [yamidoo.ai/pricing](https://yamidoo.ai/pricing/).
 
 **Private by design.** Your customers' data is fetched from your site when a conversation needs it, over a signed request, and is not stored by Yamidoo. Visitors from countries you block never load the widget. Yamidoo is operated from the EU.
 
